@@ -1,6 +1,8 @@
 ﻿# ParentBot
 A module that provides a simple base class for a Steam bot that can be easliy overwritten and customized.
 
+I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it. 
+
 # Installation
 First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v0.12.x</b>. 
 

@@ -1,0 +1,8 @@
+﻿**.txt**
+**.sln**
+**.log**
+**.sentry**
+.vs/
+node_modules/
+**.dat**
+**.njsproj**

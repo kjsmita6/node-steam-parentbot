@@ -1,0 +1,16 @@
+{
+  "name": "steam-parentbot",
+  "version": "1.0.0",
+  "description": "A bot that contains all of the basics of Steam",
+  "main": "parentbot.js",
+  "author": {
+    "name": "Kyle Smith",
+    "email": "smith.kyle1734@gmail.com"
+  },
+  "dependencies": {
+    "steam": "^1.0.0",
+    "steam-web-api-key": "^0.0.1",
+    "steam-weblogon": "^0.0.3",
+    "winston": "^1.0.1"
+  }
+}

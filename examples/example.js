@@ -9,7 +9,7 @@ var ChildBot = function () {
 
 util.inherits(ChildBot, ParentBot);
 
-var Bot = new ChildBot('username', 'username'); //initiate the constructor, 1st arg is username, 2nd is password, 3rd (optional) is an options object
+var Bot = new ChildBot('username', 'password'); //initiate the constructor, 1st arg is username, 2nd is password, 3rd (optional) is an options object
 
 ChildBot.prototype._onFriendMsg = function (steamID, message, chatter, type) { //overwrite default event handlers
     this.logger.info(steamID + ' sent: ' + message);

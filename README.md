@@ -1,4 +1,6 @@
 ﻿# ParentBot
+[![Codacy Badge](https://www.codacy.com/project/badge/0bebac574a7040179d83778a4dd18aa9)](https://www.codacy.com/app/dragonbanshee/node-steam-parentbot)
+
 A module that provides a simple base class for a Steam bot that can be easliy overwritten and customized.
 
 I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it. 

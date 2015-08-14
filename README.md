@@ -1,4 +1,4 @@
-﻿﻿# ParentBot
+# ParentBot
 
 [![Codacy Badge](https://www.codacy.com/project/badge/0bebac574a7040179d83778a4dd18aa9)](https://www.codacy.com/app/dragonbanshee/node-steam-parentbot)
 

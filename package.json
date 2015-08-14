@@ -7,6 +7,14 @@
     "name": "Kyle Smith",
     "email": "smith.kyle1734@gmail.com"
   },
+  "license": "MIT",
+  "repository": {
+	"type": "git",
+	"url": "https://github.com/dragonbanshee/node-steam-parentbot"
+  },
+  "engines": {
+	"node": ">=0.12"
+  },
   "dependencies": {
     "steam": "^1.0.0",
     "steam-web-api-key": "^0.0.1",

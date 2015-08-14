@@ -4,7 +4,6 @@ var GetSteamApiKey = require('steam-web-api-key');
 var Winston = require('winston');
 var fs = require('fs');
 var crypto = require('crypto');
-var util = require('util');
 
 var ParentBot = function (username, password, options) {
     var that = this;
@@ -73,16 +72,17 @@ prototype.connect = function () {
 prototype.logOn = function () {
     this.logger.debug('Logging in...');
     var that = this;
-    var sha = '';
     try {
+		var sha = '';
+		if (fs.existsSync(this.sentryfile)) {
+            var file = fs.readFileSync(this.sentryfile);
+            sha = crypto
+						.createHash('sha1')
+                        .update(file)
+                        .digest();
+        }
+		
         if (this.options.guardCode) {
-            if (fs.existsSync(this.sentryfile)) {
-                var file = fs.readFileSync(this.sentryfile);
-                sha = crypto
-                            .createHash('sha1')
-                            .update(file)
-                            .digest();
-            }
             this.steamUser.logOn({
                 account_name: that.username,
                 password: that.password,
@@ -91,13 +91,6 @@ prototype.logOn = function () {
             });
         }
         else {
-            if (fs.existsSync(this.sentryfile)) {
-                var file = fs.readFileSync(this.sentryfile);
-                sha = crypto
-                            .createHash('sha1')
-                            .update(file)
-                            .digest();
-            }
             this.steamUser.logOn({
                 account_name: that.username,
                 password: that.password,

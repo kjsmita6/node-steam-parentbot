@@ -1,12 +1,13 @@
 ﻿﻿# ParentBot
+
 [![Codacy Badge](https://www.codacy.com/project/badge/0bebac574a7040179d83778a4dd18aa9)](https://www.codacy.com/app/dragonbanshee/node-steam-parentbot)
 
 A module that provides a simple base class for a Steam bot that can be easliy overwritten and customized.
 
-I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it. 
+I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it.
 
 # Installation
-First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v0.12.x</b>. 
+First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v0.12.x</b>.
 
 Once you have node and npm installed, type this command in shell, cmd, powershell, etc:
 ```js
@@ -32,7 +33,7 @@ var Bot = new ChildBot(username, password, {
 ```
 
 # Default methods and handlers
-The base class ParentBot comes with a lot of built in methods and listeners. You can add your own, and edit the built in ones right in your config file. 
+The base class ParentBot comes with a lot of built in methods and listeners. You can add your own, and edit the built in ones right in your config file.
 
 The event handlers are:
 ```javascript
@@ -57,7 +58,7 @@ logOn() //steamClient.logOn()
 This module does not come with trade offers or trading involved, but like usual, you may add it to your config file. Check out example.js for an example of this.
 
 # Overwriting built in methods and handlers
-This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg, but if you are doing trading you will also need to overwrite _onLogOnResponse so that you can set the cookies and sessionID. 
+This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg, but if you are doing trading you will also need to overwrite _onLogOnResponse so that you can set the cookies and sessionID.
 
 There are already some built in instances of libraries and things that you can use in your config file. You can access all of these by doing `Bot.property.method`. These are:
 - steamClient - an instance of [Steam.SteamClient()](https://github.com/seishun/node-steam#steamclient)
@@ -87,7 +88,7 @@ ChildBot.prototype._onFriend = function(steamID, relationship) {
 
 This example overwrites the _onFriend handler to create a custom friend handler that only accepts friend requests from admins. _onFriend is the function that is passed to `this.steamFriends.on('friend', function(steamID, relationship) { that._onFriend(steamID, relationship); });`, so there is no need to add a new listener, you can just modify the function.
 
-If you want to create your own listener from an external module (this works the same way for modules that are already in use since I didn't create all listeners, like tradeOffers), you would do it like this 
+If you want to create your own listener from an external module (this works the same way for modules that are already in use since I didn't create all listeners, like tradeOffers), you would do it like this
 ```javascript
 var SteamTrade = require('steamTrade');
 
@@ -117,7 +118,7 @@ Bot.steamTrade.on('end', function(state) {
 });
 ```
 
-That is how you add your own listeners to your bot from internal and external libraries. 
+That is how you add your own listeners to your bot from internal and external libraries.
 
 # Help
 __This repository is beginner friendly__. If you have a problem, no matter how simple it is, PLEASE open an issue, and either I or other users will try to answer it as quickly as possible. If you need help with something that is really complex or would take a long time, you can [add me on steam](http://steamcommunity.com/id/dragonbanshee).
@@ -125,7 +126,5 @@ __This repository is beginner friendly__. If you have a problem, no matter how s
 # Contributors
 __Pull requests are welcome!__ If you found a bug and fixed it, send a pull request. If you think that you added something useful, send a pull request. Please try to follow the existing style though. I wrote [this guide](https://github.com/efreak/node-steam-chat-bot/wiki/contributing), and I think it still applies here.
 
-Feel free to add your name and github link here if you contributed. Also add what you did to contribute. 
+Feel free to add your name and github link here if you contributed. Also add what you did to contribute.
 - <a href="https://github.com/dragonbanshee">dragonbanshee (project creator)</url>
-
-

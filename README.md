@@ -24,7 +24,7 @@ var Bot = new ChildBot(username, password);
 
 //With options
 var Bot = new ChildBot(username, password, {
-	apikey: '1234567890', //steam api key, will be registered automatically if one isn't found
+	apikey: '1234567890', //steam api key, will be registered automatically if one isn't supplied
 	sentryfile: 'username.sentry', //sentry file that stores steamguard info, defaults to username.sentry
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
 	guardCode: 'XXXXX' //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated
@@ -58,15 +58,17 @@ logOn() //steamClient.logOn()
 This module does not come with trade offers or trading involved, but like usual, you may add it to your config file. Check out example.js for an example of this.
 
 # Overwriting built in methods and handlers
-This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg, but if you are doing trading you will also need to overwrite _onLogOnResponse so that you can set the cookies and sessionID.
+This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg since they don't really contain anything useful except for telling users that the bot isn't set up correctly (unless thats what you want).
 
-There are already some built in instances of libraries and things that you can use in your config file. You can access all of these by doing `Bot.property.method`. These are:
+There are already some built in instances of libraries and things that you can use in your config file. You can access all of these by doing `Bot.property.method`. For a list of methods, please visit the links for each property below. List of properties you can use:
 - steamClient - an instance of [Steam.SteamClient()](https://github.com/seishun/node-steam#steamclient)
 - steamUser - an instance of [Steam.SteamUser(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/user#steamuser)
 - steamFriends - an instance of [Steam.SteamFriends(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/friends#steamfriends)
 - steamTrading - an instance of [Steam.SteamTrading(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
 - logger - an instance of [Winston.Logger](https://github.com/winstonjs/winston)
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
+- steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)
+- offers - an instance of [SteamTradeOffers](https://github.com/Alex7Kom/node-steam-tradeoffers)
 
 To overwrite a default handler (the ones with a _ in front), do this in your config file, assuming that `ChildBot` is the child of `ParentBot` (this example will show how to change _onFriend):
 ```javascript
@@ -90,35 +92,24 @@ This example overwrites the _onFriend handler to create a custom friend handler 
 
 If you want to create your own listener from an external module (this works the same way for modules that are already in use since I didn't create all listeners, like tradeOffers), you would do it like this
 ```javascript
-var SteamTrade = require('steamTrade');
+var MySQL = require('mysql');
 
 // inherit from parentbot, see [example.js](https://github.com/dragonbanshee/node-steam-parentbot/blob/master/examples/example.js) for how to do this
 
 var Bot = new ChildBot('username', 'password');
 
-Bot.steamTrade = new SteamTrade();
-
-//here you would need to modify _onLogOnResponse to include the cookies from SteamTrade, you would also need to add a listener for Bot.steamTrading.on('tradeProposed') and Bot.steamTrading.on('sessionStart'), which will be shown here
-Bot.steamTrading.on('tradeProposed', function(tradeID, steamID) {
-    Bot.steamTrading.respondToTrade(tradeID, true);
+Bot.connection = MySQL.creatConnection({
+	host: 'localhost',
+	user: 'root',
+	password: 'password'
 });
 
-Bot.steamTrading.on('sessionStart', function(steamID) {
-    Bot.steamTrade.loadInventory(440, 2, function(inv) {
-        //do whatever you want with the inventory, filter out certain items, etc...
-    });
-});
-
-Bot.steamTrade.on('offerChanged', function(item, bool) {
-    //handle items being removed/added here
-});
-
-Bot.steamTrade.on('end', function(state) {
-    //handle the trade ending here
+Bot.connection.on('error', function(e) {
+	Bot.logger.error(e);
 });
 ```
 
-That is how you add your own listeners to your bot from internal and external libraries.
+That is how you add your own listeners to your bot from external libraries.
 
 # Help
 __This repository is beginner friendly__. If you have a problem, no matter how simple it is, PLEASE open an issue, and either I or other users will try to answer it as quickly as possible. If you need help with something that is really complex or would take a long time, you can [add me on steam](http://steamcommunity.com/id/dragonbanshee).

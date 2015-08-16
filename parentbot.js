@@ -4,6 +4,8 @@ var GetSteamApiKey = require('steam-web-api-key');
 var Winston = require('winston');
 var fs = require('fs');
 var crypto = require('crypto');
+var SteamTrade = require('steam-trade');
+var SteamTradeOffers = require('steam-tradeoffers');
 
 var ParentBot = function (username, password, options) {
     var that = this;
@@ -17,7 +19,9 @@ var ParentBot = function (username, password, options) {
     this.steamFriends = new Steam.SteamFriends(this.steamClient);
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
-    
+    this.steamTrade = new SteamTrade();
+    this.offers = new SteamTradeOffers();
+
     this.apikey = this.options.apikey || undefined;
     this.sentryfile = this.options.sentryfile || this.username + '.sentry';
     this.logfile = this.options.logfile || this.username + '.log';
@@ -42,18 +46,18 @@ var ParentBot = function (username, password, options) {
     });
 
     if (this.sentryfile) {
-        fs.existsSync(this.sentryfile) 
-        ? this.logger.info('Using sentry file ' + this.sentryfile) 
+        fs.existsSync(this.sentryfile)
+        ? this.logger.info('Using sentry file ' + this.sentryfile)
         : this.logger.warn('Sentry defined in options doesn\'t exists and will be created on successful login');
     }
-    
+
     //SteamClient
     this.steamClient.on('error', function () { that._onError() });
     this.steamClient.on('connected', function () { that._onConnected() });
     this.steamClient.on('logOnResponse', function (res) { that._onLogOnResponse(res) });
     this.steamClient.on('loggedOff', function (eresult) { that._onLoggedOff(eresult) });
     this.steamClient.on('debug', that.logger.silly);
-    
+
     //SteamUser events
     this.steamUser.on('updateMachineAuth', function (res, callback) { that._onUpdateMachineAuth(res, callback) });
 
@@ -81,7 +85,7 @@ prototype.logOn = function () {
                         .update(file)
                         .digest();
         }
-		
+
         if (this.options.guardCode) {
             this.steamUser.logOn({
                 account_name: that.username,
@@ -120,6 +124,10 @@ prototype._onLogOnResponse = function (response) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
         this.steamWebLogon.webLogOn(function (webSessionID, cookies) {
+            cookies.forEach(function(cookie) {
+              that.steamTrade.setCookie(cookie.trim());
+            }
+            that.steamTrade.sessionID = webSessionID;
             if (!that.apikey) {
                 GetSteamApiKey({
                     sessionID: webSessionID,
@@ -128,8 +136,20 @@ prototype._onLogOnResponse = function (response) {
                     if (e) that.logger.error('Error getting API key: ' + e);
                     else {
                         that.apikey = api;
+                        that.offers.setup({
+                          sessionID: webSessionID,
+                          webCookie: cookies,
+                          APIKey: that.apikey
+                        });
                     }
                 });
+            }
+            else {
+              that.offers.setup({
+                sessionID: webSessionID,
+                webCookie: cookies,
+                APIKey: that.apikey
+              });
             }
             that.logger.info('Logged into Steam web');
         });

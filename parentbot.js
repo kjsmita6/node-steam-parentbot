@@ -126,7 +126,7 @@ prototype._onLogOnResponse = function (response) {
         this.steamWebLogon.webLogOn(function (webSessionID, cookies) {
             cookies.forEach(function(cookie) {
               that.steamTrade.setCookie(cookie.trim());
-            }
+            });
             that.steamTrade.sessionID = webSessionID;
             if (!that.apikey) {
                 GetSteamApiKey({

@@ -27,7 +27,8 @@ var Bot = new ChildBot(username, password, {
 	apikey: '1234567890', //steam api key, will be registered automatically if one isn't supplied
 	sentryfile: 'username.sentry', //sentry file that stores steamguard info, defaults to username.sentry
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
-	guardCode: 'XXXXX' //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated
+	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated,
+	gamePlayed: 440 //game that the bot will play, don't include for no game
 });
 
 ```
@@ -55,8 +56,6 @@ connect() //steamClient.connect()
 logOn() //steamClient.logOn()
 ```
 
-This module does not come with trade offers or trading involved, but like usual, you may add it to your config file. Check out example.js for an example of this.
-
 # Overwriting built in methods and handlers
 This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg since they don't really contain anything useful except for telling users that the bot isn't set up correctly (unless thats what you want).
 
@@ -65,6 +64,7 @@ There are already some built in instances of libraries and things that you can u
 - steamUser - an instance of [Steam.SteamUser(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/user#steamuser)
 - steamFriends - an instance of [Steam.SteamFriends(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/friends#steamfriends)
 - steamTrading - an instance of [Steam.SteamTrading(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
+- steamGameCoordinator - an instance of [Steam.SteamGameCoordinator(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
 - logger - an instance of [Winston.Logger](https://github.com/winstonjs/winston)
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
 - steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)
@@ -90,7 +90,24 @@ ChildBot.prototype._onFriend = function(steamID, relationship) {
 
 This example overwrites the _onFriend handler to create a custom friend handler that only accepts friend requests from admins. _onFriend is the function that is passed to `this.steamFriends.on('friend', function(steamID, relationship) { that._onFriend(steamID, relationship); });`, so there is no need to add a new listener, you can just modify the function.
 
+If you want to create a listener from an internal module (such as Steam), you can do it like this. Note: __do not add listeners for things that are already being listened to.__
+```javascript
+//parentbot inheritence and stuff
+
+var Bot = new ChildBot('username', 'password');
+
+Bot.steamUser.on('tradeOffers', function(number) {
+	if(number > 0) {
+		// do stuff with trade offers
+	}
+});
+```
+
+This is how you add listeners to internal modules.
+
+
 If you want to create your own listener from an external module (this works the same way for modules that are already in use since I didn't create all listeners, like tradeOffers), you would do it like this
+
 ```javascript
 var MySQL = require('mysql');
 

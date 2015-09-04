@@ -18,6 +18,7 @@ var ParentBot = function (username, password, options) {
     this.steamUser = new Steam.SteamUser(this.steamClient);
     this.steamFriends = new Steam.SteamFriends(this.steamClient);
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
+	this.steamGameCoordinator = (options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(options.gamePlayed)) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
     this.steamTrade = new SteamTrade();
     this.offers = new SteamTradeOffers();
@@ -26,7 +27,8 @@ var ParentBot = function (username, password, options) {
     this.sentryfile = this.options.sentryfile || this.username + '.sentry';
     this.logfile = this.options.logfile || this.username + '.log';
     this.guardCode = this.options.guardCode || undefined;
-
+	this.gamePlayed = this.options.gamePlayed || undefined;
+	
     this.logger = new (Winston.Logger)({
         transports: [
             new (Winston.transports.Console)({
@@ -123,6 +125,7 @@ prototype._onLogOnResponse = function (response) {
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
+		this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn(function (webSessionID, cookies) {
             cookies.forEach(function(cookie) {
               that.steamTrade.setCookie(cookie.trim());

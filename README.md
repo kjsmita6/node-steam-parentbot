@@ -64,7 +64,7 @@ There are already some built in instances of libraries and things that you can u
 - steamUser - an instance of [Steam.SteamUser(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/user#steamuser)
 - steamFriends - an instance of [Steam.SteamFriends(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/friends#steamfriends)
 - steamTrading - an instance of [Steam.SteamTrading(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
-- steamGameCoordinator - an instance of [Steam.SteamGameCoordinator(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
+- steamGameCoordinator - an instance of [Steam.SteamGameCoordinator(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/game_coordinator#steamgamecoordinator)
 - logger - an instance of [Winston.Logger](https://github.com/winstonjs/winston)
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
 - steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)

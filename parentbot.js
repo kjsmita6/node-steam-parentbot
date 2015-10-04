@@ -1,18 +1,25 @@
-﻿var Steam = require('steam');
-var SteamWebLogon = require('steam-weblogon');
-var GetSteamApiKey = require('steam-web-api-key');
-var Winston = require('winston');
-var fs = require('fs');
-var crypto = require('crypto');
-var SteamTrade = require('steam-trade');
-var SteamTradeOffers = require('steam-tradeoffers');
+﻿const Steam = require('steam');
+const SteamWebLogon = require('steam-weblogon');
+const GetSteamApiKey = require('steam-web-api-key');
+const Winston = require('winston');
+const fs = require('fs');
+const crypto = require('crypto');
+const SteamTrade = require('steam-trade');
+const SteamTradeOffers = require('steam-tradeoffers');
 
-var ParentBot = function (username, password, options) {
-    var that = this;
+const ParentBot = function (username, password, options) {
+    const that = this;
 
     this.username = username;
     this.password = password;
     this.options = options || {};
+
+    this.service = this.options.service || undefined;
+    this.apikey = this.options.apikey || undefined;
+    this.sentryfile = this.options.sentryfile || this.username + '.sentry';
+    this.logfile = this.options.logfile || this.username + '.log';
+    this.guardCode = this.options.guardCode || undefined;
+    this.gamePlayed = this.options.gamePlayed || undefined;
 
     this.steamClient = new Steam.SteamClient();
     this.steamUser = new Steam.SteamUser(this.steamClient);
@@ -20,15 +27,12 @@ var ParentBot = function (username, password, options) {
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
 	this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
+    if(this.service) {
+        this.steamUnifiedMessages = new Steam.SteamUnifiedMessages(this.steamClient, this.service);
+    }
     this.steamTrade = new SteamTrade();
     this.offers = new SteamTradeOffers();
 
-    this.apikey = this.options.apikey || undefined;
-    this.sentryfile = this.options.sentryfile || this.username + '.sentry';
-    this.logfile = this.options.logfile || this.username + '.log';
-    this.guardCode = this.options.guardCode || undefined;
-	this.gamePlayed = this.options.gamePlayed || undefined;
-	
     this.logger = new (Winston.Logger)({
         transports: [
             new (Winston.transports.Console)({
@@ -53,19 +57,19 @@ var ParentBot = function (username, password, options) {
         : this.logger.warn('Sentry defined in options doesn\'t exists and will be created on successful login');
     }
 
-    //SteamClient
-    this.steamClient.on('error', function () { that._onError() });
-    this.steamClient.on('connected', function () { that._onConnected() });
-    this.steamClient.on('logOnResponse', function (res) { that._onLogOnResponse(res) });
-    this.steamClient.on('loggedOff', function (eresult) { that._onLoggedOff(eresult) });
+    //SteamClient events
+    this.steamClient.on('error', () => { this._onError() });
+    this.steamClient.on('connected', () => { this._onConnected() });
+    this.steamClient.on('logOnResponse', res => { that._onLogOnResponse(res) });
+    this.steamClient.on('loggedOff', eresult => { that._onLoggedOff(eresult) });
     this.steamClient.on('debug', that.logger.silly);
 
     //SteamUser events
-    this.steamUser.on('updateMachineAuth', function (res, callback) { that._onUpdateMachineAuth(res, callback) });
+    this.steamUser.on('updateMachineAuth', (res, callback) => { that._onUpdateMachineAuth(res, callback) });
 
     //SteamFriends events
-    this.steamFriends.on('friendMsg', function (steamID, message, type, chatter) { that._onFriendMsg(steamID, message, type, chatter) });
-    this.steamFriends.on('friend', function (steamID, relationship) { that._onFriend(steamID, relationship); });
+    this.steamFriends.on('friendMsg', (steamID, message, type) => { that._onFriendMsg(steamID, message, type, chatter) });
+    this.steamFriends.on('friend', (steamID, relationship) => { that._onFriend(steamID, relationship); });
 }
 
 var prototype = ParentBot.prototype;
@@ -77,7 +81,7 @@ prototype.connect = function () {
 
 prototype.logOn = function () {
     this.logger.debug('Logging in...');
-    var that = this;
+    const that = this;
     try {
 		var sha = '';
 		if (fs.existsSync(this.sentryfile)) {
@@ -106,7 +110,6 @@ prototype.logOn = function () {
     }
 	catch (err) {
         this.logger.error('Error logging in: ' + err);
-        process.exit(err);
     }
 }
 
@@ -121,13 +124,13 @@ prototype._onConnected = function () {
 }
 
 prototype._onLogOnResponse = function (response) {
-    var that = this;
+    const that = this;
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
 		this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
-        this.steamWebLogon.webLogOn(function (webSessionID, cookies) {
-            cookies.forEach(function(cookie) {
+        this.steamWebLogon.webLogOn((webSessionID, cookies) => {
+            cookies.forEach(cookie => {
               that.steamTrade.setCookie(cookie.trim());
             });
             that.steamTrade.sessionID = webSessionID;
@@ -135,7 +138,7 @@ prototype._onLogOnResponse = function (response) {
                 GetSteamApiKey({
                     sessionID: webSessionID,
                     webCookie: cookies
-                }, function (e, api) {
+                }, (e, api) => {
                     if (e) that.logger.error('Error getting API key: ' + e);
                     else {
                         that.apikey = api;
@@ -159,7 +162,10 @@ prototype._onLogOnResponse = function (response) {
     }
     else {
         this.logger.warn('EResult for logon: ' + response.eresult);
-        process.exit(response.eresult);
+        if(response.eresult === 63) {
+            this.logger.warn('Please provide the steamguard code sent to your email at ' + response.email_domain);
+            process.exit(63);
+        }
     }
 }
 
@@ -176,7 +182,7 @@ prototype._onUpdateMachineAuth = function (response, callback) {
     });
 }
 
-prototype._onFriendMsg = function (steamID, message, type, chatter) {
+prototype._onFriendMsg = function (steamID, message, type) {
     if (type === Steam.EChatEntryType.ChatMsg) {
         this.logger.info('Message from ' + steamID + ': ' + message);
         this.steamFriends.sendMessage(steamID, 'Hi, thanks for messaging me! If you are getting this message, it means that my ' +
@@ -193,6 +199,3 @@ prototype._onFriend = function (steamID, relationship) {
 }
 
 exports.ParentBot = ParentBot;
-exports.create = function (username, password, options) {
-    return new ParentBot(username, password, options);
-}

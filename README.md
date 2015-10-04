@@ -7,7 +7,7 @@ A module that provides a simple base class for a Steam bot that can be easily ov
 I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it.
 
 # Installation
-First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v0.12.x</b>.
+First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v4.x.x</b>.
 
 Once you have node and npm installed, type this command in shell, cmd, powershell, etc:
 ```javascript
@@ -29,6 +29,7 @@ var Bot = new ChildBot(username, password, {
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
 	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated,
 	gamePlayed: 440 //game that the bot will play, don't include for no game
+	service: 'Parental' //service for SteamUnifiedMessages, leave blank to not include
 });
 
 ```
@@ -65,6 +66,7 @@ There are already some built in instances of libraries and things that you can u
 - steamFriends - an instance of [Steam.SteamFriends(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/friends#steamfriends)
 - steamTrading - an instance of [Steam.SteamTrading(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
 - steamGameCoordinator - an instance of [Steam.SteamGameCoordinator(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/game_coordinator#steamgamecoordinator)
+- steamUnifiedMessages - an instance of [Steam.SteamUnifiedMessages(steamClient, service)](https://github.com/seishun/node-steam/tree/master/lib/handlers/unified_messages)
 - logger - an instance of [Winston.Logger](https://github.com/winstonjs/winston)
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
 - steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)
@@ -76,7 +78,7 @@ var admins = ['76561198091343023'];
 var Bot = new ChildBot('username', 'password');
 
 ChildBot.prototype._onFriend = function(steamID, relationship) {
-    if(relationship === Steam.EFriendRelationship.RequestRecipient) {
+    if(relationship === 2) {
         if(admins.indexOf(steamID) !== -1) {
             Bot.steamFriends.addFriend(steamID);
         }

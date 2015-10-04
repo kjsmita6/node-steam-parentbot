@@ -60,16 +60,16 @@ const ParentBot = function (username, password, options) {
     //SteamClient events
     this.steamClient.on('error', () => { this._onError() });
     this.steamClient.on('connected', () => { this._onConnected() });
-    this.steamClient.on('logOnResponse', res => { that._onLogOnResponse(res) });
-    this.steamClient.on('loggedOff', eresult => { that._onLoggedOff(eresult) });
-    this.steamClient.on('debug', that.logger.silly);
+    this.steamClient.on('logOnResponse', res => { this._onLogOnResponse(res) });
+    this.steamClient.on('loggedOff', eresult => { this._onLoggedOff(eresult) });
+    this.steamClient.on('debug', this.logger.silly);
 
     //SteamUser events
-    this.steamUser.on('updateMachineAuth', (res, callback) => { that._onUpdateMachineAuth(res, callback) });
+    this.steamUser.on('updateMachineAuth', (res, callback) => { this._onUpdateMachineAuth(res, callback) });
 
     //SteamFriends events
-    this.steamFriends.on('friendMsg', (steamID, message, type) => { that._onFriendMsg(steamID, message, type, chatter) });
-    this.steamFriends.on('friend', (steamID, relationship) => { that._onFriend(steamID, relationship); });
+    this.steamFriends.on('friendMsg', (steamID, message, type) => { this._onFriendMsg(steamID, message, type, chatter) });
+    this.steamFriends.on('friend', (steamID, relationship) => { this._onFriend(steamID, relationship); });
 }
 
 var prototype = ParentBot.prototype;

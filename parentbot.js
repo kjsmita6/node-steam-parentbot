@@ -68,7 +68,7 @@ const ParentBot = function (username, password, options) {
     this.steamUser.on('updateMachineAuth', (res, callback) => { this._onUpdateMachineAuth(res, callback) });
 
     //SteamFriends events
-    this.steamFriends.on('friendMsg', (steamID, message, type) => { this._onFriendMsg(steamID, message, type, chatter) });
+    this.steamFriends.on('friendMsg', (steamID, message, type) => { this._onFriendMsg(steamID, message, type) });
     this.steamFriends.on('friend', (steamID, relationship) => { this._onFriend(steamID, relationship); });
 }
 

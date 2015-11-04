@@ -25,7 +25,7 @@ const ParentBot = function (username, password, options) {
     this.steamUser = new Steam.SteamUser(this.steamClient);
     this.steamFriends = new Steam.SteamFriends(this.steamClient);
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
-	this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
+    this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
     if(this.service) {
         this.steamUnifiedMessages = new Steam.SteamUnifiedMessages(this.steamClient, this.service);
@@ -87,7 +87,7 @@ prototype.logOn = function () {
 		if (fs.existsSync(this.sentryfile)) {
             var file = fs.readFileSync(this.sentryfile);
             sha = crypto
-						.createHash('sha1')
+			.createHash('sha1')
                         .update(file)
                         .digest();
         }
@@ -178,7 +178,10 @@ prototype._onUpdateMachineAuth = function (response, callback) {
     this.logger.debug('New sentry: ' + response.filename);
     fs.writeFileSync(this.sentryfile, response.bytes);
     callback({
-        sha_file: crypto.createHash('sha1').update(response.bytes).digest()
+        sha_file: crypto
+        		.createHash('sha1')
+        		.update(response.bytes)
+        		.digest()
     });
 }
 

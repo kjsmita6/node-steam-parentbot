@@ -26,6 +26,7 @@ const ParentBot = function (username, password, options) {
     this.steamFriends = new Steam.SteamFriends(this.steamClient);
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
     this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
+    this.steamRichPresence = (this.options.richPresenceID ? new Steam.steamRichPresence(this.steamClient, parseInt(this.options.richPresenceID)) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
     if(this.service) {
         this.steamUnifiedMessages = new Steam.SteamUnifiedMessages(this.steamClient, this.service);
@@ -72,14 +73,18 @@ const ParentBot = function (username, password, options) {
     this.steamFriends.on('friend', (steamID, relationship) => { this._onFriend(steamID, relationship); });
 }
 
+
+module.exports = ParentBot;
+ParentBot.Steam = Steam;
+
 var prototype = ParentBot.prototype;
 
-prototype.connect = function () {
+prototype.connect = function connectCallback() {
     this.steamClient.connect();
     this.logger.debug('Connecting to Steam...');
 }
 
-prototype.logOn = function () {
+prototype.logOn = function logOnCallback() {
     this.logger.debug('Logging in...');
     const that = this;
     try {
@@ -113,17 +118,17 @@ prototype.logOn = function () {
     }
 }
 
-prototype._onError = function () {
+prototype._onError = function errorCallback() {
     this.logger.error('Disconnected from Steam, reconnecting...');
     this.connect();
 }
 
-prototype._onConnected = function () {
+prototype._onConnected = function connectedCallback() {
     this.logger.verbose('Connected to Steam, logging in...');
     this.logOn();
 }
 
-prototype._onLogOnResponse = function (response) {
+prototype._onLogOnResponse = function logOnResponseCallback(response) {
     const that = this;
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
@@ -169,12 +174,12 @@ prototype._onLogOnResponse = function (response) {
     }
 }
 
-prototype._onLoggedOff = function () {
+prototype._onLoggedOff = function logedOffCallback() {
     this.logger.error('Logged off of Steam, logging in again...');
     this.logOn();
 }
 
-prototype._onUpdateMachineAuth = function (response, callback) {
+prototype._onUpdateMachineAuth = function updateMachineAuthCallback(response, callback) {
     this.logger.debug('New sentry: ' + response.filename);
     fs.writeFileSync(this.sentryfile, response.bytes);
     callback({
@@ -185,7 +190,7 @@ prototype._onUpdateMachineAuth = function (response, callback) {
     });
 }
 
-prototype._onFriendMsg = function (steamID, message, type) {
+prototype._onFriendMsg = function friendMsgCallback(steamID, message, type) {
     if (type === Steam.EChatEntryType.ChatMsg) {
         this.logger.info('Message from ' + steamID + ': ' + message);
         this.steamFriends.sendMessage(steamID, 'Hi, thanks for messaging me! If you are getting this message, it means that my ' +
@@ -193,12 +198,10 @@ prototype._onFriendMsg = function (steamID, message, type) {
     }
 }
 
-prototype._onFriend = function (steamID, relationship) {
+prototype._onFriend = function friendCallback(steamID, relationship) {
     if (relationship === Steam.EFriendRelationship.RequestRecipient) {
         this.steamFriends.addFriend(steamID);
         this.steamFriends.sendMessage(steamID, 'Hi, thanks for adding me! If you are getting this message, it means that my ' +
                                                 'owner hasn\'t configured me properly. Annoy them with messages until they do!');
     }
 }
-
-exports.ParentBot = ParentBot;

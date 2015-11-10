@@ -7,7 +7,7 @@ A module that provides a simple base class for a Steam bot that can be easily ov
 I made this (mainly for myself) because I was getting tired of writing the same code over and over again that does the same things. This is a way to eliminate the copying and pasting of code, while still allowing you to fully customize it.
 
 # Installation
-First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js v4.x.x</b>.
+First you will need to install [node.js](http://nodejs.org) if you haven't already. <b>This will only work with Node.js >= 4.0.0</b>.
 
 Once you have node and npm installed, type this command in shell, cmd, powershell, etc:
 ```javascript
@@ -29,7 +29,8 @@ var Bot = new ChildBot(username, password, {
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
 	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated,
 	gamePlayed: 440 //game that the bot will play, don't include for no game
-	service: 'Parental' //service for SteamUnifiedMessages, leave blank to not include
+	service: 'Parental', //service for SteamUnifiedMessages, leave blank to not include
+	richPresenceID: 440 //game to use rich presence with, don't include for no rich presence
 });
 
 ```
@@ -61,16 +62,25 @@ logOn() //steamClient.logOn()
 This module was designed to provide a base class, as well as allow the user full customization. The module comes with lots of listeners built in already (the only ones you probably want to overwrite are _onFriend and _onFriendMsg since they don't really contain anything useful except for telling users that the bot isn't set up correctly (unless thats what you want).
 
 There are already some built in instances of libraries and things that you can use in your config file. You can access all of these by doing `Bot.property.method`. For a list of methods, please visit the links for each property below. List of properties you can use:
+
 - steamClient - an instance of [Steam.SteamClient()](https://github.com/seishun/node-steam#steamclient)
 - steamUser - an instance of [Steam.SteamUser(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/user#steamuser)
 - steamFriends - an instance of [Steam.SteamFriends(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/friends#steamfriends)
 - steamTrading - an instance of [Steam.SteamTrading(steamClient)](https://github.com/seishun/node-steam/tree/master/lib/handlers/trading#steamtrading)
 - steamGameCoordinator - an instance of [Steam.SteamGameCoordinator(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/game_coordinator#steamgamecoordinator)
 - steamUnifiedMessages - an instance of [Steam.SteamUnifiedMessages(steamClient, service)](https://github.com/seishun/node-steam/tree/master/lib/handlers/unified_messages)
+- steamRichPresence - an instance of [Steam.SteamRichPresence(steamClient, appID)](https://github.com/seishun/node-steam/tree/master/lib/handlers/rich_presence#steamrichpresence)
 - logger - an instance of [Winston.Logger](https://github.com/winstonjs/winston)
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
 - steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)
 - offers - an instance of [SteamTradeOffers](https://github.com/Alex7Kom/node-steam-tradeoffers)
+
+If you need to use the `Steam` object directly from node-steam, do something like this:
+```javascript
+var ParentBot = require('steam-parentbot');
+var Steam = ParentBot.Steam;
+```
+This will allow you to use certain methods not available to any handlers, but to the steam client itself (one useful example is Steam._processProto).
 
 To overwrite a default handler (the ones with a _ in front), do this in your config file, assuming that `ChildBot` is the child of `ParentBot` (this example will show how to change _onFriend):
 ```javascript
@@ -113,7 +123,7 @@ If you want to create your own listener from an external module (this works the 
 ```javascript
 var MySQL = require('mysql');
 
-// inherit from parentbot, see [example.js](https://github.com/dragonbanshee/node-steam-parentbot/blob/master/examples/example.js) for how to do this
+// inherit from parentbot, see example.js for how to do this
 
 var Bot = new ChildBot('username', 'password');
 

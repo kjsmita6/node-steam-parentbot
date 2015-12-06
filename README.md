@@ -27,9 +27,11 @@ var Bot = new ChildBot(username, password, {
 	apikey: '1234567890', //steam api key, will be registered automatically if one isn't supplied
 	sentryfile: 'username.sentry', //sentry file that stores steamguard info, defaults to username.sentry
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
-	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated,
+	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated
 	twoFactorCode: 'XXXXX', //two factor authentication code, only needed if you're using the mobile 2FA
-	sharedSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXX=' //shared secret, needed to automatically generate twoFactorCode
+	sharedSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXX=', //shared secret, needed to automatically generate twoFactorCode
+	identitySecret: 'XXXXXXXXX/XXXXXXXXXXXXXXX/X=', //identity secret, needed to automatically confirm trade offers, must be used with confirmationInterval
+	confirmationInterval: 10000, //how often we should check for new trades to confirm in miliseconds, must be used with identitySecret
 	gamePlayed: 440 //game that the bot will play, don't include for no game
 	service: 'Parental', //service for SteamUnifiedMessages, leave blank to not include
 	richPresenceID: 440 //game to use rich presence with, don't include for no rich presence

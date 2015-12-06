@@ -1,4 +1,4 @@
-﻿const Steam = require('steam');
+const Steam = require('steam');
 const SteamWebLogon = require('steam-weblogon');
 const GetSteamApiKey = require('steam-web-api-key');
 const Winston = require('winston');
@@ -19,6 +19,7 @@ const ParentBot = function (username, password, options) {
     this.sentryfile = this.options.sentryfile || this.username + '.sentry';
     this.logfile = this.options.logfile || this.username + '.log';
     this.guardCode = this.options.guardCode || undefined;
+    this.twoFactorCode = this.options.twoFactorCode || undefined;
     this.gamePlayed = this.options.gamePlayed || undefined;
 
     this.steamClient = new Steam.SteamClient();
@@ -104,6 +105,14 @@ prototype.logOn = function logOnCallback() {
                 auth_code: that.guardCode,
                 sha_sentryfile: sha
             });
+        }
+        else if (this.options.twoFactorCode) {
+            this.steamUser.logOn({
+            	account_name: that.username,
+                password: that.password,
+                two_factor_code: that.twoFactorCode,
+                sha_sentryfile: sha
+            })
         }
         else {
             this.steamUser.logOn({

@@ -28,6 +28,7 @@ var Bot = new ChildBot(username, password, {
 	sentryfile: 'username.sentry', //sentry file that stores steamguard info, defaults to username.sentry
 	logfile: 'username.log', //filename to log stuff to, defaults to username.log
 	guardCode: 'XXXXX', //steam guard code, only needed if you get error 63 when logging in, can remove after sentry is generated,
+	twoFactorCode: 'XXXXX', //two factor authentication code, only needed if you're using the mobile 2FA
 	gamePlayed: 440 //game that the bot will play, don't include for no game
 	service: 'Parental', //service for SteamUnifiedMessages, leave blank to not include
 	richPresenceID: 440 //game to use rich presence with, don't include for no rich presence

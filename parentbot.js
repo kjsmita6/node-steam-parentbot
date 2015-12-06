@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const SteamTrade = require('steam-trade');
 const SteamTradeOffers = require('steam-tradeoffers');
 const SteamTotp = require('steam-totp');
+const SteamCommunity = require('steamcommunity')
 
 const ParentBot = function (username, password, options) {
     const that = this;
@@ -22,6 +23,8 @@ const ParentBot = function (username, password, options) {
     this.guardCode = this.options.guardCode || undefined;
     this.twoFactorCode = this.options.twoFactorCode || undefined;
     this.sharedSecret = this.options.sharedSecret || undefined;
+    this.identitySecret = this.options.identitySecret || undefined;
+    this.confirmationInterval = this.options.confirmationInterval || undefined;
     this.gamePlayed = this.options.gamePlayed || undefined;
 
     this.steamClient = new Steam.SteamClient();
@@ -154,6 +157,10 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
 		this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
+            if (that.confirmationInterval && that.identitySecret) {
+                community.setCookies(cookies);
+                community.startConfirmationChecker(that.confirmationInterval, that.identitySecret);
+            }
             cookies.forEach(cookie => {
               that.steamTrade.setCookie(cookie.trim());
             });

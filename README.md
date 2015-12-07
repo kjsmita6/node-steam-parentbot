@@ -151,4 +151,5 @@ __This repository is beginner friendly__. If you have a problem, no matter how s
 __Pull requests are welcome!__ If you found a bug and fixed it, send a pull request. If you think that you added something useful, send a pull request. Please try to follow the existing style though. I wrote [this guide](https://github.com/efreak/node-steam-chat-bot/wiki/contributing), and I think it still applies here.
 
 Feel free to add your name and github link here if you contributed. Also add what you did to contribute.
-- <a href="https://github.com/dragonbanshee">dragonbanshee (project creator)</url>
+- [dragonbanshee (project creator)](https://github.com/dragonbanshee)
+- [andrewda (added 2FA login and email confirmation)](https://github.com/andrewda)

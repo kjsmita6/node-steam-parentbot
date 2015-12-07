@@ -152,4 +152,4 @@ __Pull requests are welcome!__ If you found a bug and fixed it, send a pull requ
 
 Feel free to add your name and github link here if you contributed. Also add what you did to contribute.
 - [dragonbanshee (project creator)](https://github.com/dragonbanshee)
-- [andrewda (added 2FA login and email confirmation)](https://github.com/andrewda)
+- [andrewda (added 2FA login and mobile confirmation)](https://github.com/andrewda)

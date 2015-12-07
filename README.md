@@ -78,13 +78,14 @@ There are already some built in instances of libraries and things that you can u
 - steamWebLogon - an instance of [SteamWebLogon](https://github.com/Alex7Kom/node-steam-weblogon) (use this for logging into Steam web, replacement for steamClient.on('webSessionID');
 - steamTrade - an instance of [SteamTrade](https://github.com/seishun/node-steam-trade)
 - offers - an instance of [SteamTradeOffers](https://github.com/Alex7Kom/node-steam-tradeoffers)
-
+- steamCommunity - and instance of [SteamCommunity](https://github.com/DoctorMckay/node-steamcommunity)
+- 
 If you need to use the `Steam` object directly from node-steam, do something like this:
 ```javascript
 var ParentBot = require('steam-parentbot');
 var Steam = ParentBot.Steam;
 ```
-This will allow you to use certain methods not available to any handlers, but to the steam client itself (one useful example is Steam._processProto).
+This will allow you to use certain methods not available to any handlers, but to the steam client itself (one useful example is Steam._processProto and enums).
 
 To overwrite a default handler (the ones with a _ in front), do this in your config file, assuming that `ChildBot` is the child of `ParentBot` (this example will show how to change _onFriend):
 ```javascript

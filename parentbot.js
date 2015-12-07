@@ -152,44 +152,43 @@ prototype._onConnected = function connectedCallback() {
 }
 
 prototype._onLogOnResponse = function logOnResponseCallback(response) {
-    const that = this;
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
-		this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
+	this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
-            if (that.confirmationInterval && that.identitySecret) {
-                community.setCookies(cookies);
-                community.startConfirmationChecker(that.confirmationInterval, that.identitySecret);
+            if (this.confirmationInterval && this.identitySecret) {
+                this.community.setCookies(cookies);
+                this.community.startConfirmationChecker(this.confirmationInterval, this.identitySecret);
             }
             cookies.forEach(cookie => {
-              that.steamTrade.setCookie(cookie.trim());
+              this.steamTrade.setCookie(cookie.trim());
             });
-            that.steamTrade.sessionID = webSessionID;
-            if (!that.apikey) {
+            this.steamTrade.sessionID = webSessionID;
+            if (!this.apikey) {
                 GetSteamApiKey({
                     sessionID: webSessionID,
                     webCookie: cookies
                 }, (e, api) => {
-                    if (e) that.logger.error('Error getting API key: ' + e);
+                    if (e) this.logger.error('Error getting API key: ' + e);
                     else {
-                        that.apikey = api;
-                        that.offers.setup({
+                        this.apikey = api;
+                        this.offers.setup({
                           sessionID: webSessionID,
                           webCookie: cookies,
-                          APIKey: that.apikey
+                          APIKey: this.apikey
                         });
                     }
                 });
             }
             else {
-              that.offers.setup({
+              this.offers.setup({
                 sessionID: webSessionID,
                 webCookie: cookies,
-                APIKey: that.apikey
+                APIKey: this.apikey
               });
             }
-            that.logger.info('Logged into Steam web');
+            this.logger.info('Logged into Steam web');
         });
     }
     else {
@@ -210,10 +209,7 @@ prototype._onUpdateMachineAuth = function updateMachineAuthCallback(response, ca
     this.logger.debug('New sentry: ' + response.filename);
     fs.writeFileSync(this.sentryfile, response.bytes);
     callback({
-        sha_file: crypto
-        		.createHash('sha1')
-        		.update(response.bytes)
-        		.digest()
+        sha_file: crypto.createHash('sha1').update(response.bytes).digest()
     });
 }
 

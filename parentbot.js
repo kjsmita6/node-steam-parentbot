@@ -1,4 +1,4 @@
-﻿const Steam = require('steam');
+const Steam = require('steam');
 const SteamWebLogon = require('steam-weblogon');
 const GetSteamApiKey = require('steam-web-api-key');
 const Winston = require('winston');
@@ -6,6 +6,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const SteamTrade = require('steam-trade');
 const SteamTradeOffers = require('steam-tradeoffers');
+const SteamTotp = require('steam-totp');
+const SteamCommunity = require('steamcommunity')
 
 const ParentBot = function (username, password, options) {
     const that = this;
@@ -19,6 +21,10 @@ const ParentBot = function (username, password, options) {
     this.sentryfile = this.options.sentryfile || this.username + '.sentry';
     this.logfile = this.options.logfile || this.username + '.log';
     this.guardCode = this.options.guardCode || undefined;
+    this.twoFactorCode = this.options.twoFactorCode || undefined;
+    this.sharedSecret = this.options.sharedSecret || undefined;
+    this.identitySecret = this.options.identitySecret || undefined;
+    this.confirmationInterval = this.options.confirmationInterval || undefined;
     this.gamePlayed = this.options.gamePlayed || undefined;
 
     this.steamClient = new Steam.SteamClient();
@@ -105,6 +111,22 @@ prototype.logOn = function logOnCallback() {
                 sha_sentryfile: sha
             });
         }
+        else if (this.options.twoFactorCode) {
+            this.steamUser.logOn({
+            	account_name: that.username,
+                password: that.password,
+                two_factor_code: that.twoFactorCode,
+                sha_sentryfile: sha
+            })
+        }
+        else if (this.options.sharedSecret) {
+            this.steamUser.logOn({
+            	account_name: that.username,
+            	password: that.password,
+            	two_factor_code: SteamTotp.generateAuthCode(this.options.sharedSecret),
+            	sha_sentryfile: sha
+            })
+        }
         else {
             this.steamUser.logOn({
                 account_name: that.username,
@@ -135,6 +157,10 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
 		this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
+            if (that.confirmationInterval && that.identitySecret) {
+                community.setCookies(cookies);
+                community.startConfirmationChecker(that.confirmationInterval, that.identitySecret);
+            }
             cookies.forEach(cookie => {
               that.steamTrade.setCookie(cookie.trim());
             });

@@ -34,6 +34,7 @@ const ParentBot = function (username, password, options) {
     this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
     this.steamRichPresence = (this.options.richPresenceID ? new Steam.steamRichPresence(this.steamClient, parseInt(this.options.richPresenceID)) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
+    this.community = new SteamCommunity();
     if(this.service) {
         this.steamUnifiedMessages = new Steam.SteamUnifiedMessages(this.steamClient, this.service);
     }

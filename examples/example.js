@@ -1,5 +1,5 @@
 var util = require('util');
-var ParentBot = require('../ParentBot.js'); //change to 'steam-parentbot' if not running from examples directory
+var ParentBot = require('../parentbot.js'); //change to 'steam-parentbot' if not running from examples directory
 var Steam = ParentBot.Steam; //instance of the Steam object
 
 var MySQL = require('mysql'); //require your own modules

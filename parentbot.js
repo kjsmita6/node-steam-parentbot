@@ -131,7 +131,7 @@ prototype.logOn = function logOnCallback() {
             this.steamUser.logOn({
                 account_name: that.username,
                 password: that.password,
-                two_factor_code: SteamTotp.generateAuthCode(this.options.sharedSecret),
+                two_factor_code: SteamTotp.generateAuthCode(that.options.sharedSecret),
                 sha_sentryfile: sha
             })
         }
@@ -176,6 +176,9 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
                 if(e) {
                     if(parseInt(e.eresult) === 2) {
                         this.logger.error('Failed to enable two factor. Check if you have a phone number enabled for this account.');
+                    }
+                    else if(parseInt(e.eresult) === 29) {
+                        this.logger.warn('Already have 2FA enabled');
                     }
                     else {
                         this.logger.error(e.stack);

@@ -89,7 +89,7 @@ const ParentBot = function (username, password, options) {
 module.exports = ParentBot;
 ParentBot.Steam = Steam;
 ParentBot.SteamCommunity = SteamCommunity;
-ParentBot.SteamWebApiKey = SteamWebApiKey;
+ParentBot.SteamWebApiKey = GetSteamApiKey;
 
 var prototype = ParentBot.prototype;
 
@@ -102,11 +102,11 @@ prototype.logOn = function logOnCallback() {
     this.logger.debug('Logging in...');
     const that = this;
     try {
-		var sha = '';
-		if (fs.existsSync(this.sentryfile)) {
+        var sha = '';
+        if (fs.existsSync(this.sentryfile)) {
             var file = fs.readFileSync(this.sentryfile);
             sha = crypto
-			.createHash('sha1')
+            .createHash('sha1')
                         .update(file)
                         .digest();
         }
@@ -121,7 +121,7 @@ prototype.logOn = function logOnCallback() {
         }
         else if (this.options.twoFactorCode) {
             this.steamUser.logOn({
-            	account_name: that.username,
+                account_name: that.username,
                 password: that.password,
                 two_factor_code: that.twoFactorCode,
                 sha_sentryfile: sha
@@ -129,10 +129,10 @@ prototype.logOn = function logOnCallback() {
         }
         else if (this.options.sharedSecret) {
             this.steamUser.logOn({
-            	account_name: that.username,
-            	password: that.password,
-            	two_factor_code: SteamTotp.generateAuthCode(this.options.sharedSecret),
-            	sha_sentryfile: sha
+                account_name: that.username,
+                password: that.password,
+                two_factor_code: SteamTotp.generateAuthCode(this.options.sharedSecret),
+                sha_sentryfile: sha
             })
         }
         else {
@@ -143,7 +143,7 @@ prototype.logOn = function logOnCallback() {
             });
         }
     }
-	catch (err) {
+    catch (err) {
         this.logger.error('Error logging in: ' + err);
     }
 }
@@ -162,15 +162,32 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
-	this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
+    this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
             if (this.confirmationInterval && this.identitySecret) {
-                this.community.setCookies(cookies);
                 this.community.startConfirmationChecker(this.confirmationInterval, this.identitySecret);
             }
+            this.community.setCookies(cookies);
             cookies.forEach(cookie => {
               this.steamTrade.setCookie(cookie.trim());
             });
+
+            this.community.enableTwoFactor((e, response) => {
+                if(e) {
+                    if(parseInt(e.eresult) === 2) {
+                        this.logger.error('Failed to enable two factor. Check if you have a phone number enabled for this account.');
+                    }
+                    else {
+                        this.logger.error(e.stack);
+                    }
+                }
+                else {
+                    this.logger.verbose('Writing information to ' + this.username + '.2fa_info. Please add shared_secret and identity_secret ' +
+                        'to your config as options sharedSecret and identitySecret respectively.');
+                    this.finalizeTwoFactor(response);
+                }
+            });
+
             this.steamTrade.sessionID = webSessionID;
             if (!this.apikey) {
                 GetSteamApiKey({
@@ -204,19 +221,6 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
             this.logger.warn('Please provide the steamguard code sent to your email at ' + response.email_domain);
             process.exit(63);
         }
-        else if(response.eresult === 85) {
-            this.logger.warn('AcountLoginDeniedNeedTwoFactor: Enabling two factor auth...');
-            this.community.enableTwoFactor((e, response) => {
-                if(parseInt(e.eresult) === 2) {
-                    this.logger.error('Failed to enable two factor. Check if you have a phone number enabled for this account.');
-                }
-                else {
-                    this.logger.verbose('Writing information to ' + this.username + '.2fa_info. Please add shared_secret and identity_secret ' +
-                        'to your config as options sharedSecret and identitySecret respectively.');
-                    finalizeTwoFactor(response);
-                }
-            });
-        }
     }
 }
 
@@ -226,7 +230,7 @@ prototype.finalizeTwoFactor = function finalizeCallback(res) {
             if(e) {
                 if(e.message === 'Invalid activation code') {
                     this.logger.error('Invalid activation code, please try again');
-                    finalizeTwoFactor(res);
+                    this.finalizeTwoFactor(res);
                     return;
                 }
             }

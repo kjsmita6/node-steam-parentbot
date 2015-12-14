@@ -2,12 +2,14 @@ const Steam = require('steam');
 const SteamWebLogon = require('steam-weblogon');
 const GetSteamApiKey = require('steam-web-api-key');
 const Winston = require('winston');
-const fs = require('fs');
-const crypto = require('crypto');
 const SteamTrade = require('steam-trade');
 const SteamTradeOffers = require('steam-tradeoffers');
 const SteamTotp = require('steam-totp');
 const SteamCommunity = require('steamcommunity')
+
+const fs = require('fs');
+const crypto = require('crypto');
+const readline = require('readline');
 
 const ParentBot = function (username, password, options) {
     const that = this;
@@ -33,13 +35,16 @@ const ParentBot = function (username, password, options) {
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
     this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
     this.steamRichPresence = (this.options.richPresenceID ? new Steam.steamRichPresence(this.steamClient, parseInt(this.options.richPresenceID)) : undefined);
+    this.steamUnifiedMessages = (this.options.service ? new Steam.SteamUnifiedMessages(this.steamClient, this.options.service) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
     this.community = new SteamCommunity();
-    if(this.service) {
-        this.steamUnifiedMessages = new Steam.SteamUnifiedMessages(this.steamClient, this.service);
-    }
     this.steamTrade = new SteamTrade();
     this.offers = new SteamTradeOffers();
+
+    this.rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
     this.logger = new (Winston.Logger)({
         transports: [
@@ -83,6 +88,8 @@ const ParentBot = function (username, password, options) {
 
 module.exports = ParentBot;
 ParentBot.Steam = Steam;
+ParentBot.SteamCommunity = SteamCommunity;
+ParentBot.SteamWebApiKey = SteamWebApiKey;
 
 var prototype = ParentBot.prototype;
 
@@ -197,7 +204,37 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
             this.logger.warn('Please provide the steamguard code sent to your email at ' + response.email_domain);
             process.exit(63);
         }
+        else if(response.eresult === 85) {
+            this.logger.warn('AcountLoginDeniedNeedTwoFactor: Enabling two factor auth...');
+            this.community.enableTwoFactor((e, response) => {
+                if(parseInt(e.eresult) === 2) {
+                    this.logger.error('Failed to enable two factor. Check if you have a phone number enabled for this account.');
+                }
+                else {
+                    this.logger.verbose('Writing information to ' + this.username + '.2fa_info. Please add shared_secret and identity_secret ' +
+                        'to your config as options sharedSecret and identitySecret respectively.');
+                    finalizeTwoFactor(response);
+                }
+            });
+        }
     }
+}
+
+prototype.finalizeTwoFactor = function finalizeCallback(res) {
+    this.rl.question('Code received by SMS: ', code => {
+        this.community.finalizeTwoFactor(res.shared_secret, code, e => {
+            if(e) {
+                if(e.message === 'Invalid activation code') {
+                    this.logger.error('Invalid activation code, please try again');
+                    finalizeTwoFactor(res);
+                    return;
+                }
+            }
+            else {
+                this.logger.info('Two factor auth enabled.');
+            }
+        });
+    });
 }
 
 prototype._onLoggedOff = function logedOffCallback() {

@@ -184,6 +184,7 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
                 else {
                     this.logger.verbose('Writing information to ' + this.username + '.2fa_info. Please add shared_secret and identity_secret ' +
                         'to your config as options sharedSecret and identitySecret respectively.');
+                    fs.writeFileSync(this.username + '.2fa_info', JSON.stringify(response, null, 2));
                     this.finalizeTwoFactor(response);
                 }
             });

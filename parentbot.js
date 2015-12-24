@@ -176,6 +176,7 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
                 if(e) {
                     if(parseInt(e.eresult) === 2) {
                         this.logger.error('Failed to enable two factor. Check if you have a phone number enabled for this account.');
+                        this.logger.error(e.stack);
                     }
                     else if(parseInt(e.eresult) === 29) {
                         this.logger.warn('Already have 2FA enabled');
@@ -235,7 +236,9 @@ prototype.finalizeTwoFactor = function finalizeCallback(res) {
                 if(e.message === 'Invalid activation code') {
                     this.logger.error('Invalid activation code, please try again');
                     this.finalizeTwoFactor(res);
-                    return;
+                }
+                else {
+                    this.logger.error(e.stack);
                 }
             }
             else {

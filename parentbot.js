@@ -34,7 +34,7 @@ const ParentBot = function (username, password, options) {
     this.steamFriends = new Steam.SteamFriends(this.steamClient);
     this.steamTrading = new Steam.SteamTrading(this.steamClient);
     this.steamGameCoordinator = (this.options.gamePlayed ? new Steam.SteamGameCoordinator(this.steamClient, parseInt(this.options.gamePlayed)) : undefined);
-    this.steamRichPresence = (this.options.richPresenceID ? new Steam.steamRichPresence(this.steamClient, parseInt(this.options.richPresenceID)) : undefined);
+    this.steamRichPresence = (this.options.richPresenceID ? new Steam.SteamRichPresence(this.steamClient, parseInt(this.options.richPresenceID)) : undefined);
     this.steamUnifiedMessages = (this.options.service ? new Steam.SteamUnifiedMessages(this.steamClient, this.options.service) : undefined);
     this.steamWebLogon = new SteamWebLogon(this.steamClient, this.steamUser);
     this.community = new SteamCommunity();
@@ -105,10 +105,7 @@ prototype.logOn = function logOnCallback() {
         var sha = '';
         if (fs.existsSync(this.sentryfile)) {
             var file = fs.readFileSync(this.sentryfile);
-            sha = crypto
-            .createHash('sha1')
-                        .update(file)
-                        .digest();
+            sha = crypto.createHash('sha1').update(file).digest();
         }
 
         if (this.options.guardCode) {
@@ -162,14 +159,14 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
     if (response.eresult === Steam.EResult.OK) {
         this.logger.info('Logged into Steam!');
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
-    this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
+        this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
             if (this.confirmationInterval && this.identitySecret) {
                 this.community.startConfirmationChecker(this.confirmationInterval, this.identitySecret);
             }
             this.community.setCookies(cookies);
             cookies.forEach(cookie => {
-              this.steamTrade.setCookie(cookie.trim());
+                this.steamTrade.setCookie(cookie.trim());
             });
 
             this.community.enableTwoFactor((e, response) => {

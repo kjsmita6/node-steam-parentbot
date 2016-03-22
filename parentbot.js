@@ -161,13 +161,14 @@ prototype._onLogOnResponse = function logOnResponseCallback(response) {
         this.steamFriends.setPersonaState(Steam.EPersonaState = 1);
         this.steamUser.gamesPlayed({ "games_played": [{ "game_id": (this.gamePlayed ? parseInt(this.gamePlayed) : null) }] });
         this.steamWebLogon.webLogOn((webSessionID, cookies) => {
-            if (this.confirmationInterval && this.identitySecret) {
-                this.community.startConfirmationChecker(this.confirmationInterval, this.identitySecret);
-            }
             this.community.setCookies(cookies);
             cookies.forEach(cookie => {
                 this.steamTrade.setCookie(cookie.trim());
             });
+
+            if (this.confirmationInterval && this.identitySecret) {
+                this.community.startConfirmationChecker(this.confirmationInterval, this.identitySecret);
+            }
 
             this.community.enableTwoFactor((e, response) => {
                 if(e) {

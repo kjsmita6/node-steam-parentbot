@@ -14,7 +14,45 @@ Once you have node and npm installed, type this command in shell, cmd, powershel
 npm install steam-parentbot
 ```
 
-Once it's installed, you will need to create your config file, you may use the one in the examples folder, or you can create one anywhere. It must follow the same structure as the one in example.js.
+Once it's installed, you will need to create your config file, you may use the one in the examples folder, or you can create one anywhere. It must follow the same structure as the one in example.js or example-es6.js
+
+# ES5 vs ES6 (new!)
+I have rewritten the bot to use an ES6 class instead of an ES5 function. This will not change the functionality of the bot, but it will change how the bot options are defined.
+
+First change (affects both): Requiring
+```javascript
+// Old version require
+var ParentBot = require('steam-parentbot').ParentBot; // .ParentBot for original version
+
+// New version require
+var ParentBot = require('steam-parentbot').ES6; // .ES6 for new version
+
+Second (new): ChildBot and overwriting
+```javascript
+// Old version ChildBot
+var ParentBot = require('steam-parentbot').ParentBot;
+
+var ChildBot = function() {
+	ChildBot.super_.apply(this, arguments);
+}
+
+require('util').inherits(ChildBot, ParentBot);
+
+ChildBot.prototype._onFriendMsg(steamID, message, type) { } // overridden method
+
+var Bot = new ChildBot('username', 'password');
+
+// New version ChildBot
+var ParentBot = require('steam-parentbot').ES6;
+
+class ChildBot extends ParentBot {
+	_onFriendMsg(steamID, message, type) { } //overridden method
+}
+
+var Bot = new ChildBot('username', 'password');
+```
+
+Your best bet for #2 is looking at the file `parentbot-es6.js`. It shows how classes work in JavaScript which should help you override the super ParentBot class.
 
 # Options
 To initialize the bot, you must use `var Bot = new ChildBot(username, password)`, but you may also add an optional `options` object. This object can contain the following (and any others if you are adding to the bot):
@@ -83,7 +121,7 @@ There are already some built in instances of libraries and things that you can u
 
 If you need to use the any require objects directly without instantiating them first, the following are available:
 ```javascript
-var ParentBot = require('steam-parentbot');
+var ParentBot = require('steam-parentbot').ParentBot;
 var Steam = ParentBot.Steam;
 var SteamCommunity = ParentBot.SteamCommunity;
 var SteamWebApiKey = ParentBot.SteamWebApiKey;

@@ -5,7 +5,7 @@ const Winston = require('winston');
 const SteamTrade = require('steam-trade');
 const SteamTradeOffers = require('steam-tradeoffers');
 const SteamTotp = require('steam-totp');
-const SteamCommunity = require('steamcommunity')
+const SteamCommunity = require('steamcommunity');
 
 const fs = require('fs');
 const crypto = require('crypto');
@@ -86,7 +86,8 @@ const ParentBot = function (username, password, options) {
 }
 
 
-module.exports = ParentBot;
+exports.ParentBot = ParentBot;
+exports.ES6 = require('./parentbot-es6.js');
 ParentBot.Steam = Steam;
 ParentBot.SteamCommunity = SteamCommunity;
 ParentBot.SteamWebApiKey = GetSteamApiKey;

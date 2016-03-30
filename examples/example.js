@@ -1,6 +1,6 @@
 var util = require('util');
 var ParentBot = require('../parentbot.js'); //change to 'steam-parentbot' if not running from examples directory
-var Steam = ParentBot.Steam; //instance of the Steam object
+var Steam = ParentBot.Steam; // Steam object
 
 var MySQL = require('mysql'); //require your own modules
 
@@ -18,13 +18,13 @@ var Bot = new ChildBot('username', 'password', {
 
 ChildBot.prototype._onFriendMsg = function (steamID, message, type) { //overwrite default event handlers
     if(type === Steam.EChatEntryType.ChatMsg) {
-      if(message === '!prices') {
-        Bot.steamFriends.sendMessage(steamID, 'Selling for ' + Bot.options.sellPrice); //use your custom options
-      }
-      this.logger.info(steamID + ' sent: ' + message);
+        if(message === '!prices') {
+          this.logger.info(steamID + ' sent: ' + message);
+          Bot.steamFriends.sendMessage(steamID, 'Selling for ' + Bot.options.sellPrice); //use your custom options
+        }
     }
     else {
-      console.log(type);
+        console.log(type);
     }
 }
 
@@ -45,4 +45,4 @@ Bot.connection.connect(function (e) { //call methods on your new property
 });
 
 
-Bot.connect(); //connect to steam
+Bot.connect(); //connect to Steam

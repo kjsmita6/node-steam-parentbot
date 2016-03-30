@@ -1,6 +1,6 @@
 {
   "name": "steam-parentbot",
-  "version": "2.2.5",
+  "version": "3.0.0",
   "description": "A module that provides a simple base class for a Steam bot that can be easliy overwritten and customized.",
   "main": "parentbot.js",
   "author": {

@@ -26,6 +26,7 @@ var ParentBot = require('steam-parentbot').ParentBot; // .ParentBot for original
 
 // New version require
 var ParentBot = require('steam-parentbot').ES6; // .ES6 for new version
+```
 
 Second (new): ChildBot and overwriting
 ```javascript

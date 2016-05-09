@@ -123,15 +123,22 @@ prototype.logOn = function logOnCallback() {
                 password: that.password,
                 two_factor_code: that.twoFactorCode,
                 sha_sentryfile: sha
-            })
+            });
         }
         else if (this.options.sharedSecret) {
-            this.steamUser.logOn({
-                account_name: that.username,
-                password: that.password,
-                two_factor_code: SteamTotp.generateAuthCode(that.options.sharedSecret),
-                sha_sentryfile: sha
-            })
+			SteamTotp.getTimeOffset(function(error,offset) {
+			    if(error){
+			        that.logger.error('Error getting time offset: ' + error);
+			    }
+			    else {
+    				that.steamUser.logOn({
+    					account_name: that.username,
+    					password: that.password,
+    					two_factor_code: SteamTotp.generateAuthCode(that.options.sharedSecret,offset),
+    					sha_sentryfile: sha
+    				});
+			    }
+			});
         }
         else {
             this.steamUser.logOn({

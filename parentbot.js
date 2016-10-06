@@ -101,7 +101,6 @@ prototype.connect = function connectCallback() {
 
 prototype.logOn = function logOnCallback() {
     this.logger.debug('Logging in...');
-    const that = this;
     try {
         var sha = '';
         if (fs.existsSync(this.sentryfile)) {
@@ -111,32 +110,32 @@ prototype.logOn = function logOnCallback() {
 
         if (this.options.guardCode) {
             this.steamUser.logOn({
-                account_name: that.username,
-                password: that.password,
-                auth_code: that.guardCode,
+                account_name: this.username,
+                password: this.password,
+                auth_code: this.guardCode,
                 sha_sentryfile: sha
             });
         }
         else if (this.options.twoFactorCode) {
             this.steamUser.logOn({
-                account_name: that.username,
-                password: that.password,
-                two_factor_code: that.twoFactorCode,
+                account_name: this.username,
+                password: this.password,
+                two_factor_code: this.twoFactorCode,
                 sha_sentryfile: sha
             })
         }
         else if (this.options.sharedSecret) {
             this.steamUser.logOn({
-                account_name: that.username,
-                password: that.password,
-                two_factor_code: SteamTotp.generateAuthCode(that.options.sharedSecret),
+                account_name: this.username,
+                password: this.password,
+                two_factor_code: SteamTotp.generateAuthCode(this.options.sharedSecret),
                 sha_sentryfile: sha
             })
         }
         else {
             this.steamUser.logOn({
-                account_name: that.username,
-                password: that.password,
+                account_name: this.username,
+                password: this.password,
                 sha_sentryfile: sha
             });
         }
